@@ -11,7 +11,7 @@
   If you not clone. otherwise, skip that.
 
   ```sh
-  git clone https://github.com/your_user_name/Hard-Real-Time-Systems-POSIX.4.git
+  git clone https://github.com/your_user_name/MapReduce-BigTextProcessor.git
   ```
 
 3. Sync with remote repo in organization.
@@ -19,7 +19,7 @@
   note: do this before you start to coding.
 
   ```sh
-  git pull https://github.com/Hard-Real-Time-Systems-POSIX.4/Hard-Real-Time-Systems-POSIX.4.git master
+  git pull https://github.com/MapReduce-BigTextProcessor/MapReduce-BigTextProcessor.git master
   # Sync the remote repo in organization with local folder
 
   git push
