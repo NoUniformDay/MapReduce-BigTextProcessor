@@ -1,3 +1,5 @@
+package src;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,9 +67,9 @@ public class MapReduce {
         			filenames.add("whitman.txt");
         			
         			// Original Filenames - Test for printing
-//        			filenames.add("file1.txt");
-//        			filenames.add("file2.txt");
-//        			filenames.add("file3.txt");
+	       			// filenames.add("file1.txt");
+	       			// filenames.add("file2.txt");
+	       			// filenames.add("file3.txt");
 
         			
                 // Input Map - read files and populate
