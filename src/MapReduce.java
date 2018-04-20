@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,59 +19,71 @@ import java.util.concurrent.Executors;
 public class MapReduce {
 	
 		static Map<String, String> input;
+		
+		static PrintWriter writer;
         
         public static void main(String[] args) {
                
                 // SETUP:
         	
-        			System.out.println("Running Test");
-        			
-        			// Get number of threads
-        			
-        			// From command line
-        			// int threads = Integer.parseInt(args[0]);
-        			
-        			// Enter in programme
-        			// int threads = 4;
-        			int threads = Runtime.getRuntime().availableProcessors();
-        			
-        			Boolean printResults = false;
-        			
-        			System.out.println("Threads: " + threads + "\n");
-        			
-        			// Store filenames
-        			ArrayList<String> filenames = new ArrayList<String>();
-        			
-//        			// Take inputs from command line
-//        			int argIndex = 1;
-//        			int recordFiles = 1;
-//        			
-//        			while(recordFiles == 1) {
-//        				try {
-//        					filenames.add(args[argIndex]);
-//        					argIndex ++;
-//        				}
-//        				catch (ArrayIndexOutOfBoundsException e) {
-//        					recordFiles = 0;
-//        				}	
-//        			}
-        			
-        			// Enter File Names here - quicker for debugging
-        			filenames.add("shakespeare.txt");
-        			filenames.add("big.txt");
-        			filenames.add("austen.txt");
-        			filenames.add("darwin.txt");
-        			filenames.add("doyle.txt");
-        			filenames.add("joyce.txt");
-        			filenames.add("dickens.txt");
-        			filenames.add("grimm.txt");
-        			filenames.add("illiad.txt");
-        			filenames.add("whitman.txt");
-        			
-        			// Original Filenames - Test for printing
-	       			// filenames.add("file1.txt");
-	       			// filenames.add("file2.txt");
-	       			// filenames.add("file3.txt");
+    			System.out.println("Running Test");
+    			
+    			// Get number of threads
+    			
+    			// From command line
+    			int threads = Integer.parseInt(args[0]);
+    			
+    			// Alternatively Enter in programme
+    			// int threads = 4;
+    			// int threads = Runtime.getRuntime().availableProcessors();
+    			
+    			// Settings for printing
+    			Boolean printResults = true;
+    			Boolean outputToFile = false;
+    			
+    			System.out.println("Threads: " + threads + "\n");
+
+    			try {
+					writer = new PrintWriter("output.txt", "UTF-8");
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (UnsupportedEncodingException e1) {
+					e1.printStackTrace();
+				}
+    			
+    			// Store filenames
+    			ArrayList<String> filenames = new ArrayList<String>();
+    			
+    			// Take file name inputs from command line
+       			int argIndex = 1;
+       			int recordFiles = 1;
+       			
+       			while(recordFiles == 1) {
+       				try {
+       					filenames.add(args[argIndex]);
+       					argIndex ++;
+       				}
+       				catch (ArrayIndexOutOfBoundsException e) {
+       					recordFiles = 0;
+       				}	
+       			}
+    			
+    			// Alternatively Enter File Names here
+    			// filenames.add("shakespeare.txt");
+    			// filenames.add("big.txt");
+    			// filenames.add("austen.txt");
+    			// filenames.add("darwin.txt");
+    			// filenames.add("doyle.txt");
+    			// filenames.add("joyce.txt");
+    			// filenames.add("dickens.txt");
+    			// filenames.add("grimm.txt");
+    			// filenames.add("illiad.txt");
+    			// filenames.add("whitman.txt");
+   			
+    			// Original Filenames - Test for printing
+       		    // filenames.add("file1.txt");
+       		    // filenames.add("file2.txt");
+       		    // filenames.add("file3.txt");
 
         			
                 // Input Map - read files and populate
@@ -102,7 +116,7 @@ public class MapReduce {
                 // Call brute force Method
                 System.out.println("Running Brute Force Test");
                 long startTime1 = System.currentTimeMillis();
-                bruteForce(input,printResults);
+                bruteForce(input,printResults,outputToFile);
                 long finishTime1 = System.currentTimeMillis();
                 long runTime1 = finishTime1 - startTime1;
                 System.out.println("Run Time: " + runTime1 + "ms\n");
@@ -110,23 +124,25 @@ public class MapReduce {
                 // Call standard MapReduce Method
                 System.out.println("Running Standard Map Reduce Test");
                 long startTime2 = System.currentTimeMillis();
-                mapReduce(input,printResults);
+                mapReduce(input,printResults,outputToFile);
                 long finishTime2 = System.currentTimeMillis();
                 long runTime2 = finishTime2 - startTime2;
                 System.out.println("Run Time: " + runTime2 + "ms\n");
+   
                 
                 // Call distributed MapReduce Method - Original Implementation
                 System.out.println("Running Distributed Map Reduce Test");
                 long startTime3 = System.currentTimeMillis();
-                mapReduceDist(input,printResults,threads);
+                mapReduceDist(input,printResults,threads,outputToFile);
                 long finishTime3 = System.currentTimeMillis();
                 long runTime3 = finishTime3 - startTime3;
                 System.out.println("Run Time: " + runTime3 + "ms\n");
+    
                 
                 // Call distributed MapReduce Method with Pool of Threads
-                System.out.println("Running Distributed Map Reduce Test with Thread Pool");
+                System.out.println("Running Distributed Map Reduce Test with Thred Pool");
                 long startTime4 = System.currentTimeMillis();
-                mapReduceDistPool(input,printResults,threads);
+                mapReduceDistPool(input,printResults,threads,outputToFile);
                 long finishTime4 = System.currentTimeMillis();
                 long runTime4 = finishTime4 - startTime4;
                 System.out.println("Run Time: " + runTime4 + "ms\n");
@@ -134,17 +150,17 @@ public class MapReduce {
                 // Distributed MapReduce Method with parallel Group Phase with pool of threads
                 System.out.println("Running Full Distributed Map Reduce Test with Thread Pool");
                 long startTime5 = System.currentTimeMillis();
-                mapReduceFullDistPool(input,printResults,threads);
+                mapReduceFullDistPool(input,printResults,threads,outputToFile);
                 long finishTime5 = System.currentTimeMillis();
                 long runTime5 = finishTime5 - startTime5;
-                System.out.println("Run Time: " + runTime5 + "ms\n");
+                System.out.println("Run Time: " + runTime5 + "ms\n");        
                 
                 System.out.println("Completed");
                 
         }
         
         // APPROACH #1: Brute force
-        public static void bruteForce(Map<String, String> input, boolean print){
+        public static void bruteForce(Map<String, String> input, boolean print, boolean outputToFile){
                 
         		Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
                 
@@ -174,13 +190,16 @@ public class MapReduce {
             }
             
             if(print) {
-            		// show me:
                 System.out.println(output);
+            }
+            
+            if(outputToFile) {
+        			writer.println(output);
             }
         }
 
         // APPROACH #2: MapReduce
-        public static void mapReduce(Map<String, String> input, boolean print){
+        public static void mapReduce(Map<String, String> input, boolean print, boolean outputToFile){
         	
         		Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
                 
@@ -229,10 +248,14 @@ public class MapReduce {
             		System.out.println(output);
             }
             
+            if(outputToFile) {
+        			writer.println(output);
+            }
+            
         }
         
         // APPROACH #3: Distributed MapReduce Original Implementation - Uncontrolled Thread Creation
-        public static void mapReduceDist(Map<String, String> input, boolean print,int threads){
+        public static void mapReduceDist(Map<String, String> input, boolean print,int threads, boolean outputToFile){
             final Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
             
             // MAP:
@@ -333,10 +356,14 @@ public class MapReduce {
             if(print) {
             		System.out.println(output);
             }
+            
+            if(outputToFile) {
+        			writer.println(output);
+            }
         }
         
         // Modified Method: APPROACH #4: Distributed MapReduce with Fixed Thread Pool
-        public static void mapReduceDistPool(Map<String, String> input, boolean print,int threads){
+        public static void mapReduceDistPool(Map<String, String> input, boolean print,int threads, boolean outputToFile){
             final Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
             
             // MAP:
@@ -428,11 +455,15 @@ public class MapReduce {
             if(print) {
             		System.out.println(output);
             }
+            
+            if(outputToFile) {
+            		writer.println(output);
+            }
         }
         
         
         // Modified Method: APPROACH #5: Fully Distributed MapReduce including Group Phase with Fixed Thread Pool
-        public static void mapReduceFullDistPool(Map<String, String> input, boolean print,int threads){
+        public static void mapReduceFullDistPool(Map<String, String> input, boolean print,int threads, boolean outputToFile){
             final Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
             
             // MAP:
@@ -596,9 +627,12 @@ public class MapReduce {
             if(print) {
             		System.out.println(output);
             }
+            
+            if(outputToFile) {
+            		writer.println(output);
+            }
         }
-        
-        
+    
         
         //Methods Used
         
@@ -653,6 +687,7 @@ public class MapReduce {
                     list.add(file);
             }
         }
+        
         
         public static interface ReduceCallback<E, K, V> {
                 
